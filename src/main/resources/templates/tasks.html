@@ -1,0 +1,200 @@
+<!DOCTYPE html>
+<html xmlns:th="http://www.thymeleaf.org">
+<head>
+  <title>Task Management</title>
+  <style>
+    /* Estilos generales */
+    body {
+      font-family: Arial, sans-serif;
+      background-color: #f4f4f9;
+      margin: 0;
+      padding: 20px;
+      color: #333;
+    }
+
+    h1 {
+      color: #4a90e2;
+      text-align: center;
+    }
+
+    .error-message {
+      color: #ff4444;
+      margin-bottom: 20px;
+      text-align: center;
+      font-weight: bold;
+    }
+
+    /* Formulario para crear tareas */
+    #task-form {
+      background: #fff;
+      padding: 20px;
+      border-radius: 8px;
+      box-shadow: 0 2px 4px rgba(0, 0, 0, 0.1);
+      margin-bottom: 20px;
+      display: flex;
+      gap: 10px;
+      flex-wrap: wrap;
+    }
+
+    #task-form input[type="text"] {
+      flex: 1;
+      padding: 10px;
+      border: 1px solid #ddd;
+      border-radius: 4px;
+      font-size: 16px;
+    }
+
+    #task-form select {
+      padding: 10px;
+      border: 1px solid #ddd;
+      border-radius: 4px;
+      font-size: 16px;
+    }
+
+    #task-form button {
+      padding: 10px 20px;
+      background-color: #4a90e2;
+      color: #fff;
+      border: none;
+      border-radius: 4px;
+      cursor: pointer;
+      font-size: 16px;
+    }
+
+    #task-form button:hover {
+      background-color: #357abd;
+    }
+
+    /* Lista de tareas */
+    #task-list {
+      list-style: none;
+      padding: 0;
+    }
+
+    #task-list li {
+      background: #fff;
+      padding: 15px;
+      border-radius: 8px;
+      box-shadow: 0 2px 4px rgba(0, 0, 0, 0.1);
+      margin-bottom: 10px;
+      display: flex;
+      align-items: center;
+      justify-content: space-between;
+    }
+
+    #task-list li.completed {
+      background-color: #f0f8ff;
+    }
+
+    #task-list li form {
+      display: flex;
+      align-items: center;
+      gap: 10px;
+    }
+
+    #task-list li input[type="text"] {
+      flex: 1;
+      padding: 8px;
+      border: 1px solid #ddd;
+      border-radius: 4px;
+      font-size: 14px;
+    }
+
+    #task-list li input[type="checkbox"] {
+      width: 20px;
+      height: 20px;
+      cursor: pointer;
+    }
+
+    #task-list li button {
+      padding: 8px 12px;
+      background-color: #4a90e2;
+      color: #fff;
+      border: none;
+      border-radius: 4px;
+      cursor: pointer;
+      font-size: 14px;
+    }
+
+    #task-list li button.delete {
+      background-color: #ff4444;
+    }
+
+    #task-list li button:hover {
+      opacity: 0.9;
+    }
+
+    /* Responsive Design */
+    @media (max-width: 600px) {
+      #task-form {
+        flex-direction: column;
+      }
+
+      #task-form input[type="text"],
+      #task-form select,
+      #task-form button {
+        width: 100%;
+      }
+
+      #task-list li {
+        flex-direction: column;
+        align-items: flex-start;
+        gap: 10px;
+      }
+
+      #task-list li form {
+        width: 100%;
+      }
+    }
+  </style>
+</head>
+<body>
+<h1>Task Management</h1>
+
+<!-- Mensajes de error -->
+<div id="error-message" class="error-message" th:if="${errorMessage}" th:text="${errorMessage}"></div>
+
+<!-- Formulario para crear tareas -->
+<form id="task-form" action="/tasks" method="post" onsubmit="return validateForm()">
+  <input type="text" name="name" id="task-name" placeholder="Task name" required>
+  <select name="priority">
+    <option value="LOW">Low</option>
+    <option value="NORMAL">Normal</option>
+    <option value="URGENT">Urgent</option>
+  </select>
+  <button type="submit">Add Task</button>
+</form>
+
+<!-- Lista de tareas -->
+<ul id="task-list">
+  <li th:each="task : ${tasks}" th:classappend="${task.done} ? 'completed' : ''">
+    <form th:action="@{/tasks/{id}/update(id=${task.id})}" method="post">
+      <input type="text" name="name" th:value="${task.name}" required>
+      <input type="checkbox" name="done" th:checked="${task.done}" onchange="this.form.submit()">
+      <button type="submit">Update</button>
+    </form>
+    <form th:action="@{/tasks/{id}/delete(id=${task.id})}" method="post">
+      <button type="submit" class="delete">Delete</button>
+    </form>
+  </li>
+</ul>
+
+<!-- Script para manejar errores -->
+<script>
+  function validateForm() {
+    const taskName = document.getElementById('task-name').value;
+    if (!taskName.trim()) {
+      showError('Task name cannot be empty');
+      return false;
+    }
+    return true;
+  }
+
+  function showError(message) {
+    const errorDiv = document.getElementById('error-message');
+    errorDiv.textContent = message;
+    errorDiv.style.display = 'block';
+  }
+</script>
+</body>
+</html>
